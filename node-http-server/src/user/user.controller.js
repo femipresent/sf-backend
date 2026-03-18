@@ -1,10 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userSchema = require("../../models/User");
-const e = require("express");
 
 const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     try {
         const isExisting = await userSchema.findOne({ email });
@@ -17,23 +16,23 @@ const registerUser = async (req, res) => {
             return res.status(400).json({success: false, message: "Password is required",});
         }
 
-        if(!name) {
-            return res.stats(400).json({success: false, message: "Name is required",});
+        if (!firstName || !lastName) {
+            return res.status(400).json({success: false, message: "First name and last name are required",});
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new userSchema({name: name, email, password: hashedPassword,});
+        const user = new userSchema({firstName, lastName, email, password: hashedPassword});
 
         const response = await user.save();
         console.log(response);
 
-        const jwtoken = jwt.sign({email: response.email, userId: response._id,}, process.env.JWTSECRET, {expiresIn: "1d"});
+        const jwtoken = jwt.sign({email: response.email, userId: response._id}, process.env.JWTSECRET, {expiresIn: "1d"});
         console.log('Generated token:', jwtoken);
         console.log('Token length:', jwtoken.length);
-        return res.status(201).json({success: true, message: "Account created successfully", data: {accessToken: jwtoken,},});
+        return res.status(201).json({success: true, message: "Account created successfully", data: {accessToken: jwtoken},});
     } catch(error) {
         console.log("error", error);
-        return res.status(412).send({ssuccess: false, message: error.message,});
+        return res.status(412).send({success: false, message: error.message});
     }
 };
 
@@ -53,7 +52,7 @@ const login = async (req, res) => {
             return res.status(401).json({message: "Invalid credentials"});
         }
 
-        const jwtoken = jwt.sign({ email: user.email, userId: user._id,}, process.env.JWTSECRET, {expiresIn: "1d"});
+        const jwtoken = jwt.sign({ email: user.email, userId: user._id}, process.env.JWTSECRET, {expiresIn: "1d"});
         console.log('Generated token:', jwtoken);
         console.log('Token length:', jwtoken.length);
 
@@ -83,10 +82,9 @@ const findOneUser = async (req, res) => {
 };
 
 const registerAdmin = async (req, res) => {
-    const { name, email, password, adminSecret } = req.body;
+    const { firstName, lastName, email, password, adminSecret } = req.body;
 
     try {
-        // Check admin secret key
         if (adminSecret !== process.env.ADMIN_SECRET) {
             return res.status(403).json({success: false, message: "Invalid admin secret key"});
         }
@@ -101,12 +99,12 @@ const registerAdmin = async (req, res) => {
             return res.status(400).json({success: false, message: "Password is required"});
         }
 
-        if(!name) {
-            return res.status(400).json({success: false, message: "Name is required"});
+        if (!firstName || !lastName) {
+            return res.status(400).json({success: false, message: "First name and last name are required"});
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new userSchema({name, email, password: hashedPassword, role: 'admin'});
+        const user = new userSchema({firstName, lastName, email, password: hashedPassword, role: 'admin'});
 
         const response = await user.save();
         console.log(response);
@@ -122,7 +120,7 @@ const registerAdmin = async (req, res) => {
 };
 
 const registerDriver = async (req, res) => {
-    const { name, email, password, licenseNumber, vehicleInfo } = req.body;
+    const { firstName, lastName, email, password, licenseNumber, vehicleInfo } = req.body;
 
     try {
         const isExisting = await userSchema.findOne({ email });
@@ -135,12 +133,12 @@ const registerDriver = async (req, res) => {
             return res.status(400).json({success: false, message: "Password is required"});
         }
 
-        if(!name) {
-            return res.status(400).json({success: false, message: "Name is required"});
+        if (!firstName || !lastName) {
+            return res.status(400).json({success: false, message: "First name and last name are required"});
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new userSchema({name, email, password: hashedPassword, role: 'driver', licenseNumber, vehicleInfo});
+        const user = new userSchema({firstName, lastName, email, password: hashedPassword, role: 'driver', licenseNumber, vehicleInfo});
 
         const response = await user.save();
 
@@ -153,10 +151,9 @@ const registerDriver = async (req, res) => {
 };
 
 const registerDispatcher = async (req, res) => {
-    const { name, email, password, dispatcherSecret } = req.body;
+    const { firstName, lastName, email, password, dispatcherSecret } = req.body;
 
     try {
-        // Check dispatcher secret key
         if (dispatcherSecret !== process.env.DISPATCHER_SECRET) {
             return res.status(403).json({success: false, message: "Invalid dispatcher secret key"});
         }
@@ -171,12 +168,12 @@ const registerDispatcher = async (req, res) => {
             return res.status(400).json({success: false, message: "Password is required"});
         }
 
-        if(!name) {
-            return res.status(400).json({success: false, message: "Name is required"});
+        if (!firstName || !lastName) {
+            return res.status(400).json({success: false, message: "First name and last name are required"});
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new userSchema({name, email, password: hashedPassword, role: 'dispatcher'});
+        const user = new userSchema({firstName, lastName, email, password: hashedPassword, role: 'dispatcher'});
 
         const response = await user.save();
 

@@ -1,22 +1,28 @@
 const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema({
-    name: {
+    firstName: {
         type: String,
-        required: true,
+        required: [true, "First name is required"],
         trim: true,
-        minlength: [3, "Name should not be less than 3 Characters"]
+        minlength: [1, "First name too short"]
+    },
+    lastName: {
+        type: String,
+        required: [true, "Last name is required"],
+        trim: true,
+        minlength: [1, "Last name too short"]
     },
     email: {
         type: String,
-        required: true,
+        required: [true, "Email is required"],
         unique: true,
         trim: true,
     },
     password: {
         type: String,
-        required: true,
-        minlength: 6,
+        required: [true, "Password is required"],
+        minlength: [6, "Password must be at least 6 characters"],
         trim: true,
     },
     role: {
@@ -36,7 +42,15 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: true
     }
-},{timestamps: true })
+}, { timestamps: true });
 
+// Virtual for full name
+userSchema.virtual('fullName').get(function() {
+    return `${this.firstName} ${this.lastName}`.trim();
+});
 
-module.exports = mongoose.model("user", userSchema)
+// Ensure virtuals in JSON
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
+
+module.exports = mongoose.model("user", userSchema);

@@ -22,7 +22,7 @@ try {
   });
 
   console.log("? Email transporter created successfully");
-  console.log(`? Using email: ${process.env.Email}`);
+console.log(`? Using email: ${process.env.EMAIL}`);
 
   transporter.verify((error, success) => {
     if (error) {

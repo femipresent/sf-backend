@@ -74,6 +74,7 @@ app.use("/api/v1/dispatcher", dispatcherRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/rates", rateRouter);
 app.use("/api/v1/payments", paymentRouter);
+app.use("/api/v1/user", require("./src/routes/userProfile.router"));
 
 // Optional: Add a health check route
 app.get("/api/v1/health", (req, res) => {

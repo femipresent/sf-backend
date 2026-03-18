@@ -185,4 +185,19 @@ const registerDispatcher = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, login, findOneUser, registerAdmin, registerDriver, registerDispatcher };
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId; // from authMiddleware
+    const user = await userSchema.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+module.exports = { registerUser, login, findOneUser, registerAdmin, registerDriver, registerDispatcher, getUserProfile };
+

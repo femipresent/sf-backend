@@ -1,7 +1,4 @@
-const express = require("express");
 const nodemailer = require("nodemailer");
-const userSchema = require("./user.schema");
-const jwt = require("jsonwebtoken");
 
 const otpStorage = new Map();
 
@@ -10,8 +7,8 @@ let transporter;
 try {
   transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL,
       pass: process.env.EMAILSECRET,
@@ -128,20 +125,11 @@ async function verifyOTP(req, res) {
     }
 
     if (storedData.otp === otp) {
-      const verifyEmail = await userSchema.findOne({ email });
-      if (verifyEmail) {
-        let jwtoken = jwt.sign(
-          { email: verifyEmail.email, userId: verifyEmail._id },
-          process.env.JWTSECRET,
-          { expiresIn: "1d" }
-        );
-        otpStorage.delete(email);
-        return res.status(200).json({
-          success: true,
-          data: { accessToken: jwtoken },
-          message: "Email verification successful",
-        });
-      }
+      otpStorage.delete(email);
+      return res.status(200).json({
+        success: true,
+        message: "Email verification successful",
+      });
     } else {
       storedData.attempts++;
       if (storedData.attempts >= 3) {

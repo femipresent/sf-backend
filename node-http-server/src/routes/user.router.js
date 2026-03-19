@@ -1,5 +1,6 @@
 const express = require("express");
 const { registerUser, login, findOneUser, registerAdmin, registerDriver, registerDispatcher, getUserProfile } = require("../user/user.controller");
+const { protect } = require("../middleware/authMiddleware");
 
 const userRouter = express.Router();
 
@@ -9,7 +10,7 @@ userRouter.route("/register-driver").post(registerDriver);
 userRouter.route("/register-dispatcher").post(registerDispatcher);
 userRouter.route("/login").post(login);
 userRouter.route("/findone-user").get(findOneUser);
-userRouter.route("/profile").get(getUserProfile);
+userRouter.route("/profile").get(protect, getUserProfile);
 
 
 module.exports = {userRouter}

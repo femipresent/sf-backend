@@ -184,9 +184,26 @@ const getPaymentHistory = async (req, res) => {
     }
 };
 
+// @desc    Get invoices for current user
+// @route   GET /api/payments/invoices
+// @access  Private
+const getInvoices = async (req, res) => {
+    try {
+        const filter = req.user.role !== 'admin' ? { customer: req.user._id } : {};
+        const invoices = await Invoice.find(filter)
+            .populate('booking', 'trackingNumber services')
+            .populate('customer', 'name email')
+            .sort('-createdAt');
+        res.status(200).json({ success: true, data: invoices });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     initializePayment,
     verifyPayment,
     paystackWebhook,
-    getPaymentHistory
+    getPaymentHistory,
+    getInvoices
 };

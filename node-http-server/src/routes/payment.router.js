@@ -4,7 +4,8 @@ const {
     initializePayment,
     verifyPayment,
     paystackWebhook,
-    getPaymentHistory
+    getPaymentHistory,
+    getInvoices
 } = require('../payment/payment.controller');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -18,5 +19,6 @@ router.use(protect);
 router.post('/initialize', initializePayment);
 router.get('/verify/:reference', verifyPayment);
 router.get('/history', getPaymentHistory);
+router.get('/invoices', getInvoices);
 
 module.exports = router;

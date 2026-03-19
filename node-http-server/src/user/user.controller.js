@@ -185,7 +185,7 @@ const registerDispatcher = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    const userId = req.user.userId; // from authMiddleware
+    const userId = req.user._id;
     const user = await userSchema.findById(userId).select('-password');
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });

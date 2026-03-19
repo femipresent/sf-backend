@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const userSchema = require("../../models/User");
 
 const registerUser = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, phone, businessName } = req.body;
 
     try {
         const isExisting = await userSchema.findOne({ email });
@@ -21,18 +21,17 @@ const registerUser = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new userSchema({firstName, lastName, email, password: hashedPassword});
+        const user = new userSchema({firstName, lastName, email, password: hashedPassword, phone, businessName });
 
         const response = await user.save();
-        console.log(response);
+        console.log("New user created:", response);
 
         const jwtoken = jwt.sign({email: response.email, userId: response._id}, process.env.JWTSECRET, {expiresIn: "1d"});
-        console.log('Generated token:', jwtoken);
-        console.log('Token length:', jwtoken.length);
-        return res.status(201).json({success: true, message: "Account created successfully", data: {accessToken: jwtoken},});
+        console.log('Generated token:', jwtoken.substring(0, 20) + '...');
+        return res.status(201).json({success: true, message: "Account created successfully", data: {accessToken: jwtoken, user: response},});
     } catch(error) {
-        console.log("error", error);
-        return res.status(412).send({success: false, message: error.message});
+        console.log("registerUser error", error);
+        return res.status(412).json({success: false, message: error.message});
     }
 };
 
@@ -53,10 +52,9 @@ const login = async (req, res) => {
         }
 
         const jwtoken = jwt.sign({ email: user.email, userId: user._id}, process.env.JWTSECRET, {expiresIn: "1d"});
-        console.log('Generated token:', jwtoken);
-        console.log('Token length:', jwtoken.length);
+        console.log('Login token:', jwtoken.substring(0, 20) + '...');
 
-        return res.status(200).json({success: true, data: {accessToken: jwtoken}, message: "Login successful",});
+        return res.status(200).json({success: true, data: {accessToken: jwtoken, user}, message: "Login successful",});
     } catch (err) {
         console.log(err);
         return res.status(401).json({success: false, message: err.message,});
@@ -68,7 +66,7 @@ const findOneUser = async (req, res) => {
         const { email } = req.body;
         console.log(email);
 
-        const user = await userSchema.findOne({ email: email });
+        const user = await userSchema.findOne({ email: email }).select('-password');
 
         if (!user) {
             return res.status(403).json({success: false, message: "User not found",});
@@ -199,5 +197,8 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, login, findOneUser, registerAdmin, registerDriver, registerDispatcher, getUserProfile };
+module.exports = { registerUser, login, findOneUser, registerAdmin, registerDriver, registerDispatcher, getUserProfile }; 
 
+
+
+  

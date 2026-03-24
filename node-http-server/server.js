@@ -18,14 +18,23 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.FRONTEND_URL || '*',
+        origin: [
+            'http://localhost:5173',
+            'https://sf-delivery.vercel.app',
+            process.env.FRONTEND_URL
+        ].filter(Boolean),
         methods: ['GET', 'POST']
     }
 });
 
 app.use(express.json());
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://sf-delivery.netlify.app', process.env.FRONTEND_URL || '*'],
+    origin: [
+        'http://localhost:5173',
+        'https://sf-delivery.vercel.app',
+        'https://vocal-chebakia-5c2e98.netlify.app',
+        process.env.FRONTEND_URL
+    ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
